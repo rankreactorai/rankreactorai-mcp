@@ -1,0 +1,31 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.rankreactorai/rankreactor",
+  "title": "RankReactor",
+  "description": "Hosted RankReactor MCP: SEO articles, UGC video, keywords, analytics, and site audits.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.rankreactor.ai",
+  "repository": {
+    "url": "https://github.com/rankreactorai/rankreactorai-mcp",
+    "source": "github",
+    "id": "1394342934"
+  },
+  "icons": [
+    {
+      "src": "https://www.rankreactor.ai/logo.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": ["any"]
+    },
+    {
+      "src": "https://www.rankreactor.ai/apple-touch-icon.png",
+      "mimeType": "image/png",
+      "sizes": ["180x180"]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://www.rankreactor.ai/mcp"
+    }
+  ]
+}

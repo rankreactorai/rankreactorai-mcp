@@ -1,0 +1,18 @@
+{
+  "name": "rankreactor",
+  "version": "1.0.0",
+  "description": "Hosted RankReactor SEO MCP for Grok Build: articles, UGC video, keywords, analytics, and site audits.",
+  "author": {
+    "name": "RankReactorAI",
+    "url": "https://www.rankreactor.ai"
+  },
+  "repository": "https://github.com/rankreactorai/rankreactorai-mcp",
+  "homepage": "https://www.rankreactor.ai",
+  "license": "MIT",
+  "keywords": [
+    "rankreactor",
+    "rankreactorai",
+    "rankreactor mcp",
+    "seo mcp"
+  ]
+}

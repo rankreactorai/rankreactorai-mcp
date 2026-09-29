@@ -1,0 +1,21 @@
+{
+  "name": "rankreactorai",
+  "version": "1.0.0",
+  "description": "Connect Cursor to RankReactor's hosted SEO MCP server for articles, UGC video, keywords, analytics, and site audits.",
+  "author": {
+    "name": "RankReactorAI",
+    "email": "support@rankreactor.ai"
+  },
+  "homepage": "https://www.rankreactor.ai",
+  "repository": "https://github.com/rankreactorai/rankreactorai-mcp",
+  "license": "MIT",
+  "keywords": [
+    "rankreactor",
+    "rankreactorai",
+    "seo",
+    "mcp",
+    "articles",
+    "ugc"
+  ],
+  "logo": "assets/logo.svg"
+}
