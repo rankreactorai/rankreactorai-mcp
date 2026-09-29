@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "rankreactor": {
+      "type": "http",
+      "url": "https://www.rankreactor.ai/mcp"
+    }
+  }
+}

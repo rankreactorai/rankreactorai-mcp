@@ -1,0 +1,11 @@
+{
+  "name": "rankreactor",
+  "version": "1.0.0",
+  "description": "Connect Gemini CLI to RankReactor's hosted SEO MCP server for articles, UGC video, keywords, analytics, and site audits.",
+  "mcpServers": {
+    "rankreactor": {
+      "httpUrl": "https://www.rankreactor.ai/mcp"
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}
