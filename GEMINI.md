@@ -1,6 +1,6 @@
 # RankReactor
 
-RankReactor is a hosted SEO product at [https://www.rankreactor.ai](https://www.rankreactor.ai). This Gemini CLI extension connects to the remote MCP server at `https://www.rankreactor.ai/mcp` (always use the `www` host). There is no local server process and no API key in the extension config.
+RankReactor is a hosted SEO product at [https://www.rankreactor.ai](https://www.rankreactor.ai). This Gemini CLI extension connects to the remote MCP server at `https://www.rankreactor.ai/mcp` (always use the `www` host). There is no local server process. The extension config has no API key; you still generate a project API key in the RankReactor dashboard.
 
 ## When to use it
 
@@ -8,7 +8,7 @@ Use RankReactor tools when the user wants to work with a RankReactor project: re
 
 ## Auth
 
-The server uses OAuth 2.1. Unauthenticated calls return 401. Gemini CLI discovers auth from the server metadata and opens a browser. The user must have a RankReactor account (a Free plan is available) and finish sign-in in the browser. If `/mcp auth` is needed, authenticate the `rankreactor` server.
+The server uses OAuth 2.1. Unauthenticated calls return 401. Gemini CLI discovers auth from the server metadata and opens **Connect RankReactorAI**. The user must have a RankReactor account (a Free plan is available), create or select a project, generate that project's API key under Dashboard → API Key, paste the key on the Connect page, and choose Allow. That page is not a Google, magic-link, or other RankReactor account sign-in. OAuth keeps the key out of `gemini-extension.json`; it does not skip key generation. If `/mcp auth` is needed, authenticate the `rankreactor` server and finish by pasting the project key. Clients that cannot complete OAuth may send the same key as `Authorization: Bearer` on the hosted HTTP URL.
 
 ## How to help
 
