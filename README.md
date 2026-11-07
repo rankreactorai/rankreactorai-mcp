@@ -11,7 +11,7 @@ Always use `www`. The bare domain redirects and is not the MCP endpoint. This pa
 | | |
 | --- | --- |
 | Transport | Streamable HTTP |
-| Auth | Project API key as `Authorization: Bearer`. Generate the key in Dashboard → API Key, then supply it through the client's native secret input. Do not put a live key in a committed file. |
+| Auth | A dashboard project API key is always required. Clients that can send headers use `Authorization: Bearer` (preferred). Clients that cannot present a custom API key — **ChatGPT custom MCP plugins** in particular — use hosted OAuth 2.1 (CIMD/DCR, PKCE S256) and paste the same key on **Connect RankReactorAI**. Do not put a live key in a committed file. |
 | Account | A RankReactor account is required. A [Free](https://www.rankreactor.ai) plan is available. |
 | Privacy | [Privacy policy](https://www.rankreactor.ai/privacy-policy) |
 | Terms | [Terms of service](https://www.rankreactor.ai/tos) |
@@ -23,41 +23,61 @@ The hosted tools let an assistant read project status and stored SEO metrics, li
 
 ## Connect
 
-Do this before adding the MCP URL:
+Do this before adding the MCP URL, for **both** auth paths:
 
 1. Create a RankReactor account if you need one. A [Free](https://www.rankreactor.ai) plan is available.
 2. Create or select the project the assistant should use.
 3. Open **API Key** in the dashboard sidebar and choose **Generate**. Copy the key now; RankReactor shows the full value once (`rr_live_...`).
 
-Then configure the client with `https://www.rankreactor.ai/mcp` and send `Authorization: Bearer <your-project-key>`. Use that client's documented secret mechanism (plugin variable, environment variable, password prompt, or the connector's API-key field). This listing does **not** use a browser OAuth / **Connect RankReactorAI** step.
+Then pick the path the **client** actually supports. Do not copy one client's syntax into another.
 
-Configs in this repo keep the `Bearer ${…}` placeholder only. Do not commit a live key. Regenerating or revoking the key in the dashboard stops existing connections until you update the stored secret.
+**Direct Bearer (preferred when the client can send a header or API-key field).** Configure `https://www.rankreactor.ai/mcp` with `Authorization: Bearer <your-project-key>` through that client's native secret input (plugin variable, environment variable, password prompt, or API-key field). Committed configs in this repo keep the `Bearer ${…}` placeholder only.
 
-This repository does not ship a local stdio server.
+**OAuth (required when the client cannot present a custom API key).** Add the same URL only. The client opens **Connect RankReactorAI**. Paste the project key and choose **Allow**. That window is not Google, magic-link, or other RankReactor account sign-in. OAuth keeps the key out of client config; it does not skip key generation. The hosted server still implements this MCP OAuth 2.1 flow (CIMD/DCR, PKCE S256). This listing does not remove it.
 
-### Direct API-key support
+Regenerating or revoking the key in the dashboard stops existing Bearer and OAuth connections until you update the secret or paste the new key. This repository does not ship a local stdio server.
 
-Interpolation syntax is client-specific. Do not copy `${env:NAME}` into a client that documents `${NAME}`, or `${input:id}` into a client that does not prompt.
+### Which path to use
 
-| Client | Direct API key | Native secret input |
+Interpolation syntax is client-specific. Do not copy `${env:NAME}` into a client that documents `${NAME}`, or `${input:id}` into a client that does not prompt. Do not invent `oauth:false`.
+
+| Client | Direct Bearer / API key | OAuth |
 | --- | --- | --- |
-| Cursor Marketplace plugin | Yes | Plugin variable `RANKREACTOR_API_KEY` (Plugins → Configure). Placeholder in `mcp.json` is `${RANKREACTOR_API_KEY}`, not `${env:…}`. |
-| Cursor `mcp.json` / install link | Yes | `${env:RANKREACTOR_API_KEY}` in `headers.Authorization`. Set the variable in the environment Cursor inherits at launch. |
-| Claude Code | Yes | `--header` plus `${RANKREACTOR_API_KEY}` in `url`/`headers` (single-quote the header so the shell does not expand it). |
-| Claude.ai / Claude Desktop custom connector | Yes only if **Request headers** is in the add-connector dialog | **No sign-in**, then header `authorization` = `Bearer <your-project-key>`. If that section is missing, this path is unsupported. |
-| Gemini CLI | Yes | Extension `settings` (`envVar` `RANKREACTOR_API_KEY`) or `headers` with `${RANKREACTOR_API_KEY}` / `$RANKREACTOR_API_KEY`. |
-| VS Code Copilot (workspace/profile `mcp.json`) | Yes | `inputs` `promptString` + `${input:rankreactor-api-key}`. |
-| VS Code / Copilot portable `.mcp.json` | Yes | `${RANKREACTOR_API_KEY}` in header values (`${NAME}`, not `${env:NAME}` and not `${input:…}`). |
-| Grok Build | Yes | `grok mcp add --header` or `.mcp.json` `headers` with `${RANKREACTOR_API_KEY}`. |
-| grok.com custom connectors | **No** | Form is URL + OAuth authentication. No documented API-key / Bearer field. |
-| Perplexity custom remote connector | Yes | Authentication **API Key**, transport **Streamable HTTP**. |
-| Mistral Le Chat / Work | Yes if the platform asks for HTTP Bearer | Paste the project key as the Bearer token. If it only starts OAuth, this path is unsupported. |
+| **ChatGPT custom MCP plugin** | **No.** ChatGPT cannot present custom API keys. | **Required.** Add the URL, choose OAuth, paste the project key on **Connect RankReactorAI**. Not GPT Actions and not the Responses API. |
+| OpenAI Responses / Realtime MCP tool | Yes. Your app can send `headers.Authorization` (`Bearer <key>`) or `authorization`. | Optional if you already hold an OAuth access token. The API does not run the ChatGPT plugin OAuth UI. |
+| Cursor Marketplace plugin | Yes. Plugin variable `RANKREACTOR_API_KEY` → `${RANKREACTOR_API_KEY}` (not `${env:…}`). | Not used by this listing's plugin config. |
+| Cursor `mcp.json` / install link | Yes. `${env:RANKREACTOR_API_KEY}` in `headers.Authorization`. | Not used by this listing's user config. |
+| Claude Code | Yes. `--header` plus `${RANKREACTOR_API_KEY}` (single-quote the header). | Not used when the header is set. |
+| Claude.ai / Claude Desktop | Yes **only if** **Request headers** is in the dialog: **No sign-in** + `authorization` = `Bearer <key>`. | Use OAuth / **Connect RankReactorAI** when Request headers is missing. |
+| Gemini CLI | Yes. Extension `settings.envVar` `RANKREACTOR_API_KEY` or `${RANKREACTOR_API_KEY}` / `$RANKREACTOR_API_KEY`. | Do not use `/mcp auth` for this extension. |
+| VS Code Copilot (workspace/profile) | Yes. `promptString` + `${input:rankreactor-api-key}`. | Do not add an `oauth` object. |
+| VS Code / Copilot portable `.mcp.json` | Yes. `${RANKREACTOR_API_KEY}` (`${NAME}`, not `${env:NAME}`). | Not used by this listing's portable example. |
+| Grok Build | Yes. `grok mcp add --header` or `.mcp.json` `${RANKREACTOR_API_KEY}`. | Not used when the header is set. |
+| grok.com custom connectors | **No** documented Bearer field. | **Required.** Add the URL and finish **Connect RankReactorAI**. |
+| Perplexity custom remote connector | Yes. Authentication **API Key**, transport **Streamable HTTP**. | Available in that form; prefer API Key. |
+| Mistral Le Chat / Work | Yes if Work asks for HTTP Bearer. | Use **Connect RankReactorAI** if Work only starts OAuth. |
+
+## ChatGPT (custom MCP plugin)
+
+This is ChatGPT's **custom MCP plugin** path ([Add custom MCP server](https://developers.openai.com/api/docs/guides/custom-mcp-server), [Authentication](https://developers.openai.com/plugins/build/auth)). It is not [GPT Actions](https://help.openai.com/en/articles/9442513-configuring-actions-in-gpts) (OpenAPI + API key or OAuth in the GPT editor) and not the [Responses API MCP tool](https://developers.openai.com/api/docs/guides/tools-connectors-mcp) (your backend supplies `authorization` / `headers` on each API call).
+
+For an authenticated MCP server, ChatGPT expects OAuth 2.1 with MCP discovery (CIMD/DCR, PKCE S256). ChatGPT **cannot present custom API keys**. RankReactor tools read private project data and can write, so "No authentication" is not a fit. Generate the project key first, then:
+
+1. In ChatGPT, open **Plugins** → **+** → **Add custom MCP server**.
+2. Name: `RankReactor`. Server URL: `https://www.rankreactor.ai/mcp` (Streamable HTTP).
+3. Authentication: **OAuth** (not "No authentication"). Leave client id/secret empty so ChatGPT can use CIMD or DCR.
+4. Create the plugin, install it, then `@` it in a chat.
+5. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
+
+Do not put `rr_live_...` in the ChatGPT plugin URL or in a GPT Action schema. This listing is not a GPT Action.
+
+**OpenAI Responses / Realtime API** (not the ChatGPT plugin UI): your application may send the project key as `headers.Authorization` = `Bearer <your-project-key>`, or pass a token in `authorization`. That is direct-key from your backend, not ChatGPT presenting an API key.
 
 ## Claude (claude.ai custom connector)
 
 Remote MCP custom connectors work on Claude, Cowork, and Claude Desktop ([Anthropic help](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)). Static **Request headers** are the direct-key path ([authenticate with request headers](https://claude.com/docs/connectors/custom/add-unlisted)). They are not available on every Claude organization.
 
-**Pro / Max** (and Team / Enterprise when **Request headers** is shown)
+**Direct Bearer** (when **Request headers** is shown)
 
 1. Open **Customize → Connectors**.
 2. Click **+**, then **Add custom connector**.
@@ -66,9 +86,9 @@ Remote MCP custom connectors work on Claude, Cowork, and Claude Desktop ([Anthro
 5. **Request headers**: name `authorization`, value `Bearer <your-project-key>` (include the `Bearer ` prefix). Claude stores the value; do not paste it into chat or a committed file.
 6. Click **Add**.
 
-If the dialog has no **Request headers** section, this Claude account cannot use direct API-key auth. Do not add the URL alone: that is the OAuth browser path, which this listing does not use.
+**OAuth** (when **Request headers** is missing): add the same URL, let Claude run MCP OAuth, and paste the project key on **Connect RankReactorAI**. Do not leave the connector unauthenticated.
 
-**Team / Enterprise:** an Owner adds the URL under **Organization settings → Connectors** (**Add → Custom → Web**) with the same **No sign-in** + `authorization` header. Members then open **Customize → Connectors** and click **Connect**.
+**Team / Enterprise:** an Owner adds the URL under **Organization settings → Connectors** (**Add → Custom → Web**) using Bearer headers when available, otherwise OAuth. Members then open **Customize → Connectors** and click **Connect**.
 
 Enable the connector per conversation from **+ → Connectors**.
 
@@ -114,7 +134,7 @@ This repo's root `.mcp.json` uses the same `${RANKREACTOR_API_KEY}` header place
 
 From the xAI API, pass the **raw** project key in the MCP tool `authorization` field. xAI sets `Authorization: Bearer` on requests to `https://www.rankreactor.ai/mcp`.
 
-**grok.com custom connectors** ([xAI Connectors](https://docs.x.ai/grok/connectors)): **not supported** for this API-key path. That UI takes a public MCP URL and OAuth authentication. It has no documented field for a static Bearer project key. Do not add the URL there expecting header auth.
+**grok.com custom connectors** ([xAI Connectors](https://docs.x.ai/grok/connectors)): no documented static Bearer field. Add `https://www.rankreactor.ai/mcp`, choose the OAuth authentication the form offers, and paste the project key on **Connect RankReactorAI**. Do not expect header auth on grok.com.
 
 A Grok Build marketplace listing is a separate follow-up (see the pull request for the catalog entry text). You can still point Grok Build at this repo once it is listed.
 
@@ -161,7 +181,7 @@ From [Gemini CLI extensions](https://geminicli.com/docs/extensions) and the [ext
 gemini extensions install https://github.com/rankreactorai/rankreactorai-mcp
 ```
 
-The root `gemini-extension.json` registers the remote server with `httpUrl` and a sensitive setting `RANKREACTOR_API_KEY`. On install, Gemini CLI prompts for the project key, stores it in the keychain, and allowlists that env var for the extension. The header is `Authorization: Bearer ${RANKREACTOR_API_KEY}`. Do not run `/mcp auth` for this listing.
+The root `gemini-extension.json` registers the remote server with `httpUrl` and a sensitive setting `RANKREACTOR_API_KEY`. On install, Gemini CLI prompts for the project key, stores it in the keychain, and allowlists that env var for the extension. The header is `Authorization: Bearer ${RANKREACTOR_API_KEY}`. Do not run `/mcp auth` for this Gemini extension (ChatGPT plugins are the OAuth path).
 
 You can also add the same server in `~/.gemini/settings.json` without the extension (`$VAR` / `${VAR}` expansion is documented for `settings.json`):
 
@@ -233,9 +253,9 @@ Or run **MCP: Add Server** from the Command Palette, choose HTTP, paste the URL,
 
 ## Perplexity and Le Chat
 
-**Perplexity** ([custom remote connectors](https://www.perplexity.ai/help-center/en/articles/13915507-adding-custom-remote-connectors)): add a custom connector with MCP server URL `https://www.rankreactor.ai/mcp`, authentication **API Key**, transport **Streamable HTTP**. Paste the project key into Perplexity's API key field (Perplexity stores it). Do not choose OAuth.
+**Perplexity** ([custom remote connectors](https://www.perplexity.ai/help-center/en/articles/13915507-adding-custom-remote-connectors)): add a custom connector with MCP server URL `https://www.rankreactor.ai/mcp`, authentication **API Key**, transport **Streamable HTTP**. Paste the project key into Perplexity's API key field (Perplexity stores it). OAuth is also in that form; prefer API Key here.
 
-**Mistral Le Chat / Work** ([MCP connectors](https://docs.mistral.ai/vibe/work/connectors/mcp-connectors)): **Connectors → Add Connector → Custom MCP Connector**, name `rankreactor`, server URL `https://www.rankreactor.ai/mcp`. If Work asks for an HTTP Bearer token, paste the project key. If it only starts an OAuth browser flow, this API-key path is unsupported on that account.
+**Mistral Le Chat / Work** ([MCP connectors](https://docs.mistral.ai/vibe/work/connectors/mcp-connectors)): **Connectors → Add Connector → Custom MCP Connector**, name `rankreactor`, server URL `https://www.rankreactor.ai/mcp`. If Work asks for an HTTP Bearer token, paste the project key. If it only starts OAuth, paste the project key on **Connect RankReactorAI**.
 
 ## What this repo contains
 
@@ -247,7 +267,7 @@ Or run **MCP: Add Server** from the Command Palette, choose HTTP, paste the URL,
 | `.grok-plugin/plugin.json` | Grok Build plugin metadata |
 | `gemini-extension.json` | Gemini CLI extension manifest (`httpUrl`, sensitive `RANKREACTOR_API_KEY` setting) |
 | `GEMINI.md` | Gemini CLI extension context |
-| `server.json` | Official MCP Registry metadata with required secret `Authorization` header (not published from this repo) |
+| `server.json` | Official MCP Registry metadata. Optional secret `Authorization` header for direct-key clients; OAuth clients (ChatGPT plugins) omit it (not published from this repo) |
 | `assets/logo.svg` | Logo fetched from [rankreactor.ai/logo.svg](https://www.rankreactor.ai/logo.svg) |
 | `LICENSE` | MIT, copyright RankReactorAI |
 

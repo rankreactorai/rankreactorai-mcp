@@ -29,14 +29,14 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "RankReactor project API key sent as a Bearer token to https://www.rankreactor.ai/mcp.",
+          "description": "Optional when the client uses MCP OAuth (required for ChatGPT custom MCP plugins). For direct-key clients, send the project API key as a Bearer token to https://www.rankreactor.ai/mcp.",
           "value": "Bearer {api_key}",
-          "isRequired": true,
+          "isRequired": false,
           "isSecret": true,
           "variables": {
             "api_key": {
-              "description": "Generate in RankReactor Dashboard → API Key. The full value is shown once (rr_live_...).",
-              "isRequired": true,
+              "description": "Generate in RankReactor Dashboard → API Key. The full value is shown once (rr_live_...). Skip this input for ChatGPT plugins and other OAuth clients.",
+              "isRequired": false,
               "isSecret": true,
               "placeholder": "rr_live_..."
             }

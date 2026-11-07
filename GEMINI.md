@@ -12,7 +12,7 @@ Every request needs a RankReactor project API key as `Authorization: Bearer`. Th
 
 This extension declares a sensitive setting `RANKREACTOR_API_KEY`. On install, Gemini CLI prompts for the key, stores it in the keychain, and allowlists that env var. `gemini-extension.json` then sends `Authorization: Bearer ${RANKREACTOR_API_KEY}` to `https://www.rankreactor.ai/mcp`. Without the extension, the same header belongs in `~/.gemini/settings.json` using `$RANKREACTOR_API_KEY` or `${RANKREACTOR_API_KEY}` (Gemini CLI's documented expansion; not `${env:NAME}`).
 
-Do not run `/mcp auth` or open a Connect RankReactorAI / OAuth browser window for this listing. If the key is missing, ask the user to run `gemini extensions config` for the RankReactor API Key setting (or export `RANKREACTOR_API_KEY`) rather than inventing another site.
+This Gemini CLI extension uses that API-key header, not `/mcp auth`. ChatGPT custom MCP plugins cannot present a custom API key and must use the hosted OAuth flow instead; do not copy that ChatGPT path into Gemini CLI. If the key is missing here, ask the user to run `gemini extensions config` for the RankReactor API Key setting (or export `RANKREACTOR_API_KEY`) rather than inventing another site.
 
 ## How to help
 
