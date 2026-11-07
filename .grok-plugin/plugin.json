@@ -1,7 +1,7 @@
 {
   "name": "rankreactor",
-  "version": "1.0.0",
-  "description": "Hosted RankReactor SEO MCP for Grok Build: articles, UGC video, keywords, analytics, and site audits.",
+  "version": "1.1.0",
+  "description": "Hosted RankReactor SEO MCP for Grok Build: articles, UGC video, keywords, analytics, and site audits. Uses RANKREACTOR_API_KEY as Authorization Bearer.",
   "author": {
     "name": "RankReactorAI",
     "url": "https://www.rankreactor.ai"

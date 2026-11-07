@@ -1,10 +1,21 @@
 {
   "name": "rankreactor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Connect Gemini CLI to RankReactor's hosted SEO MCP server for articles, UGC video, keywords, analytics, and site audits.",
+  "settings": [
+    {
+      "name": "API Key",
+      "description": "Project API key from RankReactor Dashboard → API Key (shown once as rr_live_...). Gemini CLI sends it as Authorization: Bearer to https://www.rankreactor.ai/mcp.",
+      "envVar": "RANKREACTOR_API_KEY",
+      "sensitive": true
+    }
+  ],
   "mcpServers": {
     "rankreactor": {
-      "httpUrl": "https://www.rankreactor.ai/mcp"
+      "httpUrl": "https://www.rankreactor.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${RANKREACTOR_API_KEY}"
+      }
     }
   },
   "contextFileName": "GEMINI.md"

@@ -3,7 +3,7 @@
   "name": "io.github.flagman5/rankreactor",
   "title": "RankReactor",
   "description": "Hosted RankReactor MCP: SEO articles, UGC video, keywords, analytics, and site audits.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "websiteUrl": "https://www.rankreactor.ai",
   "repository": {
     "url": "https://github.com/rankreactorai/rankreactorai-mcp",
@@ -25,7 +25,24 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://www.rankreactor.ai/mcp"
+      "url": "https://www.rankreactor.ai/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "RankReactor project API key sent as a Bearer token to https://www.rankreactor.ai/mcp.",
+          "value": "Bearer {api_key}",
+          "isRequired": true,
+          "isSecret": true,
+          "variables": {
+            "api_key": {
+              "description": "Generate in RankReactor Dashboard → API Key. The full value is shown once (rr_live_...).",
+              "isRequired": true,
+              "isSecret": true,
+              "placeholder": "rr_live_..."
+            }
+          }
+        }
+      ]
     }
   ]
 }
