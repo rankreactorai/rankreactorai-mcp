@@ -11,7 +11,7 @@ Always use `www`. The bare domain redirects and is not the MCP endpoint.
 | | |
 | --- | --- |
 | Transport | Streamable HTTP |
-| Auth | OAuth 2.1 in the browser (dynamic client registration and CIMD, PKCE S256). No API key belongs in client config. |
+| Auth | OAuth 2.1 in the browser (dynamic client registration and CIMD, PKCE S256). A dashboard project API key is still required. OAuth keeps that key out of client config: paste it on **Connect RankReactorAI**. Clients that do not support OAuth can send the same key as a remote HTTP `Authorization: Bearer` header. |
 | Account | A RankReactor account is required. A [Free](https://www.rankreactor.ai) plan is available. |
 | Privacy | [Privacy policy](https://www.rankreactor.ai/privacy-policy) |
 | Terms | [Terms of service](https://www.rankreactor.ai/tos) |
@@ -21,9 +21,19 @@ Plans: **Free** (1 lifetime article per project), **Starter** $39/mo, **Pro** $7
 
 The hosted tools let an assistant read project status and stored SEO metrics, list generated articles and videos, refresh metrics, and queue new articles or UGC videos (write actions ask for confirmation). The current tool list is documented at [Use RankReactor with your AI assistant](https://www.rankreactor.ai/docs/ai-assistants).
 
-## Sign-in
+## Connect
 
-Add the URL in your client. The client opens a browser so you can sign in to RankReactor and authorize the connection. Config files in this repo only contain the public URL.
+Do this before adding the MCP URL:
+
+1. Create a RankReactor account if you need one. A [Free](https://www.rankreactor.ai) plan is available.
+2. Create or select the project the assistant should use.
+3. Open **API Key** in the dashboard sidebar and choose **Generate**. Copy the key now; RankReactor shows the full value once.
+
+Then add `https://www.rankreactor.ai/mcp` in your client. An OAuth-capable client opens **Connect RankReactorAI** in the browser. Paste the project key and choose **Allow**. That window is not a Google, magic-link, or other RankReactor account sign-in.
+
+OAuth keeps the project key out of client config (the files in this repo only contain the public URL). It does not remove the key-generation step. Regenerating or revoking the key in the dashboard stops existing connections until you paste the new key.
+
+Clients that do not support MCP OAuth can use the same hosted Streamable HTTP URL with `Authorization: Bearer <your-project-key>`. Use that placeholder or the client's own secret prompt; do not commit a live key. JSON field names vary by client (`url`, `httpUrl`, or `type: http`). This repository does not ship a local stdio server.
 
 ## Claude (claude.ai custom connector)
 
@@ -37,9 +47,9 @@ Remote MCP custom connectors work on Claude, Cowork, and Claude Desktop ([Anthro
 2. Click **+**, then **Add custom connector**.
 3. URL: `https://www.rankreactor.ai/mcp`
 4. Leave Advanced settings empty unless Claude asks for a client id.
-5. Click **Add**, then finish the browser sign-in.
+5. Click **Add**. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
 
-**Team / Enterprise:** an Owner adds the URL under **Organization settings → Connectors** (**Add → Custom → Web**). Members then open **Customize → Connectors** and click **Connect**.
+**Team / Enterprise:** an Owner adds the URL under **Organization settings → Connectors** (**Add → Custom → Web**). Members then open **Customize → Connectors** and click **Connect**. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
 
 Enable the connector per conversation from **+ → Connectors**.
 
@@ -53,7 +63,7 @@ claude mcp add --transport http rankreactor https://www.rankreactor.ai/mcp
 
 That writes a local-scope entry. Use `--scope user` for every project, or `--scope project` to write `.mcp.json` in the repo.
 
-Then run `claude`, type `/mcp`, select `rankreactor`, and **Authenticate** so the browser OAuth flow can complete.
+Then run `claude`, type `/mcp`, select `rankreactor`, and **Authenticate**. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
 
 ## Grok (grok.com)
 
@@ -61,7 +71,7 @@ From [xAI Connectors](https://docs.x.ai/grok/connectors):
 
 1. Open [grok.com/connectors](https://grok.com/connectors).
 2. Click **New Connector**, then **Custom**.
-3. Enter `https://www.rankreactor.ai/mcp` and finish any authentication prompt.
+3. Enter `https://www.rankreactor.ai/mcp`. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
 
 On Grok Business / Enterprise, a team admin may need to provision the connector first in [console.x.ai](https://console.x.ai) (**Grok Business → Connectors → Add Connector → Other**).
 
@@ -91,6 +101,8 @@ cursor://anysphere.cursor-deeplink/mcp/install?name=rankreactor&config=eyJ1cmwiO
 }
 ```
 
+On first use, Cursor opens **Connect RankReactorAI**. Paste the project key and choose **Allow**. If OAuth does not open, the same hosted URL can take `headers.Authorization` as `Bearer <your-project-key>` (do not commit a live key).
+
 This repo also ships a Cursor plugin manifest at `.cursor-plugin/plugin.json` plus `mcp.json` for [Cursor Marketplace](https://cursor.com/marketplace/publish) review, and a root `.mcp.json` for [cursor.directory](https://cursor.directory) auto-detect.
 
 ## Gemini CLI
@@ -101,7 +113,7 @@ From [Gemini CLI extensions](https://geminicli.com/docs/extensions) and the [ext
 gemini extensions install https://github.com/rankreactorai/rankreactorai-mcp
 ```
 
-The root `gemini-extension.json` registers the remote server with `httpUrl`. After install, start a new CLI session. If the server needs sign-in, run `/mcp auth rankreactor` and finish in the browser.
+The root `gemini-extension.json` registers the remote server with `httpUrl`. After install, start a new CLI session. If authentication is needed, run `/mcp auth rankreactor`. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
 
 You can also add the same server in `~/.gemini/settings.json` without the extension:
 
@@ -132,13 +144,13 @@ From [VS Code MCP servers](https://code.visualstudio.com/docs/agent-customizatio
 }
 ```
 
-Or run **MCP: Add Server** from the Command Palette, choose HTTP, and paste the URL. Start the server, open Copilot Chat in Agent mode, and enable the RankReactor tools if asked.
+Or run **MCP: Add Server** from the Command Palette, choose HTTP, and paste the URL. Start the server. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**. Then open Copilot Chat in Agent mode and enable the RankReactor tools if asked. If OAuth does not run, the same `type: http` entry can take `headers.Authorization` as `Bearer <your-project-key>` (do not commit a live key).
 
 ## Perplexity and Le Chat
 
-**Perplexity** ([custom remote connectors](https://www.perplexity.ai/help-center/en/articles/13915507-adding-custom-remote-connectors)): add a custom connector with MCP server URL `https://www.rankreactor.ai/mcp`, authentication **OAuth**, transport **Streamable HTTP**.
+**Perplexity** ([custom remote connectors](https://www.perplexity.ai/help-center/en/articles/13915507-adding-custom-remote-connectors)): add a custom connector with MCP server URL `https://www.rankreactor.ai/mcp`, authentication **OAuth**, transport **Streamable HTTP**. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
 
-**Mistral Le Chat / Work** ([MCP connectors](https://docs.mistral.ai/vibe/work/connectors/mcp-connectors)): **Connectors → Add Connector → Custom MCP Connector**, name `rankreactor`, server URL `https://www.rankreactor.ai/mcp`. The platform can detect OAuth 2.1 with dynamic client registration.
+**Mistral Le Chat / Work** ([MCP connectors](https://docs.mistral.ai/vibe/work/connectors/mcp-connectors)): **Connectors → Add Connector → Custom MCP Connector**, name `rankreactor`, server URL `https://www.rankreactor.ai/mcp`. The platform can detect OAuth 2.1 with dynamic client registration. When **Connect RankReactorAI** opens, paste the project key and choose **Allow**.
 
 ## What this repo contains
 
