@@ -81,7 +81,7 @@ A Grok Build marketplace listing is a separate follow-up (see the pull request f
 
 The Cursor plugin uses a RankReactor project API key, not OAuth. Get the key from the RankReactor dashboard (**API Key** page). Do not paste it into chat or commit it.
 
-1. Install the RankReactorAI plugin (`rankreactorai`) from [Cursor Marketplace](https://cursor.com/marketplace) or from **Customize** in Cursor.
+1. Install the RankReactorAI plugin (`rankreactorai`) from this GitHub repo. In Cursor, open **Customize**, paste `https://github.com/rankreactorai/rankreactorai-mcp` into the plugin search, and install ([install from a git URL](https://cursor.com/docs/cli/changelog)). A Cursor Marketplace listing is coming soon.
 2. In the RankReactor dashboard, open **API Key** and choose **Generate**. Copy the key now; RankReactor shows the full value once.
 3. In Cursor, open **Plugins → Configure** and paste the key as `RANKREACTOR_API_KEY`.
 4. Reload Cursor (**Developer: Reload Window**) or restart so the MCP server picks up the key.
