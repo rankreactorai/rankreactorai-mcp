@@ -17,5 +17,16 @@
     "articles",
     "ugc"
   ],
-  "logo": "assets/logo.svg"
+  "logo": "assets/logo.svg",
+  "variables": {
+    "type": "object",
+    "properties": {
+      "RANKREACTOR_API_KEY": {
+        "type": "string",
+        "title": "RankReactor project API key",
+        "description": "Project API key from the RankReactor dashboard (API Key page). Sent as Authorization: Bearer to https://www.rankreactor.ai/mcp. Do not paste the key into chat."
+      }
+    },
+    "required": ["RANKREACTOR_API_KEY"]
+  }
 }

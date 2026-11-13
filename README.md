@@ -79,31 +79,35 @@ A Grok Build marketplace listing is a separate follow-up (see the pull request f
 
 ## Cursor
 
-**Install link** (opens Cursor; [MCP install links](https://cursor.com/docs/mcp/install-links)):
+The Cursor plugin uses a RankReactor project API key, not OAuth. Get the key from the RankReactor dashboard (**API Key** page). Do not paste it into chat or commit it.
 
-[Add RankReactor in Cursor](https://cursor.com/en/install-mcp?name=rankreactor&config=eyJ1cmwiOiJodHRwczovL3d3dy5yYW5rcmVhY3Rvci5haS9tY3AifQ%3D%3D)
+1. Install the RankReactorAI plugin (`rankreactorai`) from [Cursor Marketplace](https://cursor.com/marketplace) or from **Customize** in Cursor.
+2. In the RankReactor dashboard, open **API Key** and choose **Generate**. Copy the key now; RankReactor shows the full value once.
+3. In Cursor, open **Plugins → Configure** and paste the key as `RANKREACTOR_API_KEY`.
+4. Reload Cursor (**Developer: Reload Window**) or restart so the MCP server picks up the key.
 
-Deeplink equivalent:
+The plugin sends `Authorization: Bearer ${RANKREACTOR_API_KEY}` to `https://www.rankreactor.ai/mcp`. Cursor substitutes the value you set under **Plugins → Configure**. This repo never stores the secret.
 
-```text
-cursor://anysphere.cursor-deeplink/mcp/install?name=rankreactor&config=eyJ1cmwiOiJodHRwczovL3d3dy5yYW5rcmVhY3Rvci5haS9tY3AifQ==
-```
+Privacy: [Privacy policy](https://www.rankreactor.ai/privacy-policy). Terms: [Terms of service](https://www.rankreactor.ai/tos).
 
-**Manual `mcp.json`** (Cursor [MCP docs](https://cursor.com/docs/mcp)): project file `.cursor/mcp.json`, or `~/.cursor/mcp.json` for every project.
+**Manual MCP config** (without the plugin) in `.cursor/mcp.json` or `~/.cursor/mcp.json` ([Cursor MCP docs](https://cursor.com/docs/mcp)). Use a placeholder or Cursor's secret prompt; do not commit a live key:
 
 ```json
 {
   "mcpServers": {
     "rankreactor": {
-      "url": "https://www.rankreactor.ai/mcp"
+      "url": "https://www.rankreactor.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer <your-project-key>"
+      }
     }
   }
 }
 ```
 
-On first use, Cursor opens **Connect RankReactorAI**. Paste the project key and choose **Allow**. If OAuth does not open, the same hosted URL can take `headers.Authorization` as `Bearer <your-project-key>` (do not commit a live key).
+Do not configure both the plugin-owned server and this manual entry unless you want two connections.
 
-This repo also ships a Cursor plugin manifest at `.cursor-plugin/plugin.json` plus `mcp.json` for [Cursor Marketplace](https://cursor.com/marketplace/publish) review, and a root `.mcp.json` for [cursor.directory](https://cursor.directory) auto-detect.
+This repo's Cursor plugin files are `.cursor-plugin/plugin.json` and `mcp.json` (for [Cursor Marketplace](https://cursor.com/marketplace/publish) review). A separate root `.mcp.json` is for [cursor.directory](https://cursor.directory) auto-detect and is unchanged.
 
 ## Gemini CLI
 
